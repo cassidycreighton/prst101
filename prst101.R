@@ -24,7 +24,7 @@ predator_99112
 # contained mesopelagic and/or coastal pelagic fish species. Call the summary
 # columns any_meso and any_cpf.
 predator <- cctd_meso %>%
-  group_by(predator_common_name) %>%
+  group_by(predator_id, predator_scientific_name) %>%
   summarize(any_meso = any(meso_prey),
             any_cpf = any(cpf_prey),
             .groups = "drop")
@@ -33,26 +33,25 @@ cctd_meso
 # P3 Using the data frame you created in P2, create a species-level summary that
 # contains columns for mesopelagic FO (meso_fo), coastal pelagic fish FO
 # (cpf_fo), and predator sample size (n).
-species_summary <- cctd_meso %>%
+species_summary <- predator %>%
   group_by(predator_scientific_name) %>%
-  summarize(meso_fo = mean(meso_prey),
-            cpf_fo = mean(cpf_prey),
+  summarize(meso_fo = mean(any_meso),
+            cpf_fo = mean(any_cpf),
             n = n())
 print(species_summary, n = 143)
 species_summary
 # P4 How many predator species had a mesopelagic FO greater than 0.5? Which of
 # those predator species had the largest sample size?
-species_summary_f <- cctd_meso %>%
+species_summary_f <- predator %>%
   group_by(predator_scientific_name) %>%
-  summarize(meso_fo = mean(meso_prey),
-            cpf_fo = mean(cpf_prey),
+  summarize(meso_fo = mean(any_meso),
+            cpf_fo = mean(any_cpf),
             n = n()) %>%
   filter(meso_fo  > 0.5)
 species_summary_f
 
-#one predator species has a mesopelagic FO greater than 0.5
-#northern right whale dolphin
-#Sample size of 803
+#7 predators
+#dosidicus giga has greatest sample size with 1136
 
 # Simulating samples ------------------------------------------------------
 
@@ -69,19 +68,20 @@ set.seed(123)
 # than Lissodelphis)?
 
 lissodelphis_samples <- rbinom(1000,
-                               size = 803,
-                               prob = 0.547)
-lissodelphis_fo <- lissodelphis_samples / 803
+                               size = 56,
+                               prob = 0.893)
+lissodelphis_fo <- lissodelphis_samples / 56
 delphinus_samples <- rbinom(1000,
-                              size = 2822,
-                              prob = 0.472)
-delphinus_fo <- delphinus_samples / 2822
-wrong_order <- length(which(lissodelphis_fo < delphinus_fo))/100
+                              size = 259,
+                              prob = 0.857)
+delphinus_fo <- delphinus_samples / 259
+wrong_order <- length(which(lissodelphis_fo < delphinus_fo))/1000
 wrong_order
-#0
+#0.212
+
   # P7 How does your result in P6 influence your confidence in the sample result
   # that Lissodelphis consume mesopelagic prey more frequently than Delphinus?
-#It makes me more confident
+#It makes me less confident
 
   # P8 If you were to get new samples of the same size for these two taxa, which
   # mesopelagic FO do you think would change more? Why?
@@ -90,33 +90,33 @@ wrong_order
   # P9 Generate 1000 new simulated samples for Histioteuthidae and Dosidicus
   # gigas, keeping the sample sizes and probabilities the same.
 histioteuthidae_samples <- rbinom(1000,
-                               size = 93,
-                               prob = 0.355)
-histioteuthidae_fo <- histioteuthidae_samples / 93
+                               size = 47,
+                               prob = 0.553)
+histioteuthidae_fo <- histioteuthidae_samples / 47
 dosidicus_giga_samples <- rbinom(1000,
-                            size = 2877,
-                            prob = 0.339)
-dosidicus_giga_fo <- dosidicus_giga_samples / 2877
+                            size = 1136,
+                            prob = 0.522)
+dosidicus_giga_fo <- dosidicus_giga_samples / 1136
   # P10 What’s the mean mesopelagic FO of the 1000 Histioteuthidae simulated
   # samples? How about Dosidicus gigas? How do these means compare to the original
   # sample?
 mean(histioteuthidae_fo)
-#0.3533226
+#0.5557021
 mean(dosidicus_giga_fo)
-#0.3390379
+#0.5213257
 #very similar to original sample
   # P11 What’s the standard deviation of mesopelagic FO across simulated samples
   # for the two taxa?
 sd(histioteuthidae_fo)
-#0.05049549
+#0.06995726
 sd(dosidicus_giga_fo)
-#0.009041675
+#0.01499616
   # P12 How frequently did Histioteuthidae mesopelagic FO fall outside the range
   # 0.45 - 0.65? How about Dosidicus gigas?
 (length(which(histioteuthidae_fo > 0.65)) + length(which(histioteuthidae_fo < 0.45)))/1000
-#0.975
+#0.165
 (length(which(dosidicus_giga_fo > 0.65)) + length(which(dosidicus_giga_fo < 0.45)))/1000
-#1
+#0
   # P13 Based on your answers to P10-P12, what effect does sample size have on
   # sample accuracy?
 #Increasing sample size means increasing sample accuracy
